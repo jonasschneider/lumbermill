@@ -93,7 +93,7 @@ func (p *RiemannPoster) deliver(point []interface{}, columns []string, prefix st
 			if !ok {
 				continue
 			}
-			event_time = time.Unix(nanos/1000, nanos)
+			event_time = time.Unix(nanos/1000, nanos%1000)
 		}
 
 		if field == "id" {
