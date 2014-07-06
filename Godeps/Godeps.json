@@ -1,7 +1,16 @@
 {
-	"ImportPath": "github.com/heroku/lumbermill",
-	"GoVersion": "go1.3",
+	"ImportPath": "github.com/jonasschneider/lumbermill",
+	"GoVersion": "go1.2",
 	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/goprotobuf/proto",
+			"Comment": "go.r60-146",
+			"Rev": "f5ac12b15e49095c60ae0acc6da0e28d47e2a29f"
+		},
+		{
+			"ImportPath": "github.com/amir/raidman",
+			"Rev": "e5c0381f4e85217ed2e4fdee2d8d8c5f8e101c0e"
+		},
 		{
 			"ImportPath": "github.com/bmizerany/lpx",
 			"Rev": "af85cf24c1567bcb5a2e4c21597cc049eab31f55"
@@ -11,12 +20,8 @@
 			"Rev": "7fea2d3038fa544293ba03f260cdc51d6674a20c"
 		},
 		{
-			"ImportPath": "github.com/influxdb/influxdb-go",
-			"Rev": "86c469e06dbe73919223d85606e038cb66c020c3"
-		},
-		{
 			"ImportPath": "github.com/kr/logfmt",
-			"Rev": "6df6d8c89fdf56b969d91e58f86e3ee494fcdeb7"
+			"Rev": "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 		}
 	]
 }
