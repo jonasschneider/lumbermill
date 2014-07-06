@@ -7,7 +7,7 @@ This is a Go app which takes Heroku Log drains and parses the router and dyno in
 ### Install on Heroku
 ```
 heroku create -b https://github.com/kr/heroku-buildpack-go.git <lumbermill_app>
-heroku config:set RIEMANN_ADDRESS="<host:port>"
+heroku config:set RIEMANN_PREFIX="my-app/" RIEMANN_ADDRESS="<host:port>"
 
 git push heroku master
 

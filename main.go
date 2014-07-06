@@ -45,8 +45,7 @@ var (
 
 	User     = os.Getenv("USER")
 	Password = os.Getenv("PASSWORD")
-
-	Hostname string
+	RiemannPrefix = os.Getenv("RIEMANN_PREFIX")
 )
 
 func LogWithContext(ctx slog.Context) {
@@ -63,10 +62,6 @@ func serveHealth(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := os.Getenv("PORT")
-	var err error
-	if Hostname, err = os.Hostname(); err != nil {
-		panic("hostname: "+err.Error())
-	}
 
 	group := NewChanGroup("riemann", PointChannelCapacity)
 	chanGroups = append(chanGroups, group)

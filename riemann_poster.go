@@ -140,7 +140,7 @@ func (p *RiemannPoster) deliver(point []interface{}, columns []string, prefix st
 
 	  var event = &raidman.Event{
 		  State: "success",
-		  Host: event_host,
+		  Host: RiemannPrefix+event_host,
 		  Service: prefix+"_"+field,
 		  Metric:	metric,
 		  Ttl: 300,
