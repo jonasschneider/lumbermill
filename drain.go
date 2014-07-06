@@ -68,8 +68,6 @@ func dynoType(what string) string {
 
 // "Parse tree" from hell
 func serveDrain(w http.ResponseWriter, r *http.Request) {
-	log.Println("received a thing")
-
 	ctx := slog.Context{}
 	defer func() { LogWithContext(ctx) }()
 	w.Header().Set("Content-Length", "0")

@@ -13,6 +13,7 @@ type RiemannPoster struct {
 	chanGroup    *ChanGroup
 	name         string
 	riemann *raidman.Client
+	riemannAddress string
 }
 
 func NewRiemannPoster(address string, chanGroup *ChanGroup) *RiemannPoster {
@@ -25,6 +26,7 @@ func NewRiemannPoster(address string, chanGroup *ChanGroup) *RiemannPoster {
 	return &RiemannPoster{
 		chanGroup: chanGroup,
 		riemann: riemann,
+		riemannAddress: address,
 	}
 }
 
@@ -153,7 +155,14 @@ func (p *RiemannPoster) deliver(point []interface{}, columns []string, prefix st
 		err = p.riemann.Send(event)
 
 		if err != nil {
-			log.Println(ctx, "delivery error:",err)
+			log.Println(ctx, "delivery error, trying to reconnect:",err)
+			new_riemann, err := raidman.Dial("tcp", p.riemannAddress)
+			if err == nil {
+				log.Println("reconnected!")
+				p.riemann = new_riemann
+			} else {
+				log.Println("reconnection failed:",err)
+			}
 		}
 	}
 
