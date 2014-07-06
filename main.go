@@ -1,17 +1,12 @@
 package main
 
 import (
-	"crypto/tls"
-	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/heroku/slog"
-	influx "github.com/influxdb/influxdb-go"
 )
 
 const (
@@ -32,7 +27,6 @@ const (
 var (
 	connectionCloser = make(chan struct{})
 
-	posters    = make([]*Poster, 0)
 	chanGroups = make([]*ChanGroup, 0)
 
 	seriesNames = []string{"router", "events.router", "dyno.mem", "dyno.load", "events.dyno"}
@@ -51,6 +45,8 @@ var (
 
 	User     = os.Getenv("USER")
 	Password = os.Getenv("PASSWORD")
+
+	Hostname string
 )
 
 func LogWithContext(ctx slog.Context) {
@@ -58,34 +54,6 @@ func LogWithContext(ctx slog.Context) {
 	log.Println(ctx)
 }
 
-func createInfluxDBClient(host string) influx.ClientConfig {
-	return influx.ClientConfig{
-		Host:     host,                       //"influxor.ssl.edward.herokudev.com:8086",
-		Username: os.Getenv("INFLUXDB_USER"), //"test",
-		Password: os.Getenv("INFLUXDB_PWD"),  //"tester",
-		Database: os.Getenv("INFLUXDB_NAME"), //"ingress",
-		IsSecure: true,
-		HttpClient: &http.Client{
-			Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: os.Getenv("INFLUXDB_SKIP_VERIFY") == "true"},
-				ResponseHeaderTimeout: 5 * time.Second,
-				Dial: func(network, address string) (net.Conn, error) {
-					return net.DialTimeout(network, address, 5*time.Second)
-				},
-			},
-		},
-	}
-}
-
-func createClients(hostlist string) []influx.ClientConfig {
-	clients := make([]influx.ClientConfig, 0)
-	for _, host := range strings.Split(hostlist, ",") {
-		host = strings.Trim(host, "\t ")
-		if host != "" {
-			clients = append(clients, createInfluxDBClient(host))
-		}
-	}
-	return clients
-}
 
 // Health Checks, so just say 200 - OK
 // TODO: Actual healthcheck
@@ -95,28 +63,15 @@ func serveHealth(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := os.Getenv("PORT")
-
-	influxClients := createClients(os.Getenv("INFLUXDB_HOSTS"))
-	if len(influxClients) == 0 {
-		//No backends, so blackhole things
-		group := NewChanGroup("null", PointChannelCapacity)
-		chanGroups = append(chanGroups, group)
-		poster := NewNullPoster(group)
-		go poster.Run()
-	} else {
-		for i, client := range influxClients {
-			// TODO: make this the hostname, when we are actually sharding.
-			name := fmt.Sprintf("ringnode.%d", i)
-			group := NewChanGroup(name, PointChannelCapacity)
-			chanGroups = append(chanGroups, group)
-
-			for p := 0; p < PostersPerHost; p++ {
-				poster := NewPoster(client, name, group)
-				posters = append(posters, poster)
-				go poster.Run()
-			}
-		}
+	var err error
+	if Hostname, err = os.Hostname(); err != nil {
+		panic("hostname: "+err.Error())
 	}
+
+	group := NewChanGroup("riemann", PointChannelCapacity)
+	chanGroups = append(chanGroups, group)
+	poster := NewRiemannPoster(os.Getenv("RIEMANN_ADDRESS"), group)
+	go poster.Run()
 
 	hashRing.Add(chanGroups...)
 

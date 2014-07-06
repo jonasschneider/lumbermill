@@ -68,6 +68,7 @@ func dynoType(what string) string {
 
 // "Parse tree" from hell
 func serveDrain(w http.ResponseWriter, r *http.Request) {
+	log.Println("received a thing")
 
 	ctx := slog.Context{}
 	defer func() { LogWithContext(ctx) }()
@@ -81,13 +82,13 @@ func serveDrain(w http.ResponseWriter, r *http.Request) {
 
 	id := r.Header.Get("Logplex-Drain-Token")
 
-	if id == "" {
+	/*if id == "" {
 		if err := checkAuth(r); err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			ctx.Count("errors.auth.failure", 1)
 			return
 		}
-	}
+	}*/
 
 	ctx.Count("batch", 1)
 
