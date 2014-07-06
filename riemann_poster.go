@@ -140,6 +140,11 @@ func (p *RiemannPoster) deliver(point []interface{}, columns []string, prefix st
 			}
 		}
 
+		var desc string
+		if attrs["id"] != "" {
+			desc = "Heroku request ID: "+attrs["id"]
+		}
+
 	  var event = &raidman.Event{
 		  State: "success",
 		  Host: RiemannPrefix+event_host,
@@ -148,6 +153,7 @@ func (p *RiemannPoster) deliver(point []interface{}, columns []string, prefix st
 		  Ttl: 300,
 		  Time: event_time.Unix(),
 		  Attributes: attrs,
+		  Description: desc,
 		}
 
 		log.Printf("sending %#v\n", *event)
