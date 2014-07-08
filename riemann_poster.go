@@ -142,7 +142,7 @@ func (p *RiemannPoster) Run() {
 			// sourceDrain string
 
 			event := &raidman.Event{
-		  	Host: RiemannPrefix+dm.Dyno,
+		  	Host: RiemannPrefix+dm.Source,
 			  Service: "memory",
 			  Ttl: 300,
 			  Time: dm.timestamp,
@@ -155,13 +155,14 @@ func (p *RiemannPoster) Run() {
 			  ),
 			  Attributes: map[string]string{
 			  	"logplex_source_id": dm.sourceDrain,
+			  	"dyno": dm.Dyno,
 			  },
 			}
 
 			p.deliver(event)
 
 			event2 := &raidman.Event{
-		  	Host: RiemannPrefix+dm.Dyno,
+		  	Host: RiemannPrefix+dm.Source,
 			  Service: "memory_swap",
 			  Ttl: 300,
 			  Time: dm.timestamp,
@@ -169,13 +170,14 @@ func (p *RiemannPoster) Run() {
 			  Description: fmt.Sprintf("%s of swap used", ByteSize(dm.MemorySwap*1e6).String()),
 			  Attributes: map[string]string{
 			  	"logplex_source_id": dm.sourceDrain,
+			  	"dyno": dm.Dyno,
 			  },
 			}
 
 			p.deliver(event2)
 
 			event3 := &raidman.Event{
-		  	Host: RiemannPrefix+dm.Dyno,
+		  	Host: RiemannPrefix+dm.Source,
 			  Service: "memory_swap_pagecount",
 			  Ttl: 300,
 			  Time: dm.timestamp,
@@ -183,6 +185,7 @@ func (p *RiemannPoster) Run() {
 			  Description: fmt.Sprintf("%d page ins, %d page outs", dm.MemoryPgpgin, dm.MemoryPgpgout),
 			  Attributes: map[string]string{
 			  	"logplex_source_id": dm.sourceDrain,
+			  	"dyno": dm.Dyno,
 			  },
 			}
 
@@ -204,7 +207,7 @@ func (p *RiemannPoster) Run() {
 			// sourceDrain string
 
 			event := &raidman.Event{
-		  	Host: RiemannPrefix+dl.Dyno,
+		  	Host: RiemannPrefix+dl.Source,
 			  Service: "load",
 			  Ttl: 300,
 			  Time: dl.timestamp,
@@ -216,6 +219,7 @@ func (p *RiemannPoster) Run() {
 			  ),
 			  Attributes: map[string]string{
 			  	"logplex_source_id": dl.sourceDrain,
+			  	"dyno": dl.Dyno,
 			  },
 			}
 
