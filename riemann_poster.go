@@ -54,7 +54,7 @@ func (p *RiemannPoster) Run() {
 
 		  event := &raidman.Event{
 			  Host: RiemannPrefix+"router",
-			  Service: "heroku_request",
+			  Service: rm.Host+" heroku latency",
 			  Metric:	rm.Connect+rm.Service,
 			  Ttl: 300,
 			  Time: rm.timestamp,
@@ -64,7 +64,7 @@ func (p *RiemannPoster) Run() {
 			  	"path": rm.Path,
 			  	"status": string(rm.Status),
 
-			  	"host": rm.Host,
+			  	"request_host": rm.Host,
 			  	"request_id": rm.RequestId,
 			  	"fwd": rm.Fwd,
 			  	"dyno": rm.Dyno,
