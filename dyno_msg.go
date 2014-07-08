@@ -25,10 +25,15 @@ var (
 
 type dynoError struct {
 	Code int
+	Message string
+	Dyno string
+
+	timestamp int64
+	sourceDrain string
 }
 
 func parseBytesToDynoError(msg []byte) (dynoError, error) {
-	de := dynoError{}
+	de := dynoError{Message: string(msg)}
 	byteCode := msg[len(dynoErrorSentinel) : len(dynoErrorSentinel)+2]
 	code, err := strconv.Atoi(string(byteCode))
 	if err != nil {
@@ -47,6 +52,9 @@ type dynoMemMsg struct {
 	MemorySwap    float64
 	MemoryPgpgin  int
 	MemoryPgpgout int
+
+	timestamp int64
+	sourceDrain string
 }
 
 func (dm *dynoMemMsg) HandleLogfmt(key, val []byte) error {
@@ -77,6 +85,9 @@ type dynoLoadMsg struct {
 	LoadAvg1Min  float64
 	LoadAvg5Min  float64
 	LoadAvg15Min float64
+
+	timestamp int64
+	sourceDrain string
 }
 
 func (dm *dynoLoadMsg) HandleLogfmt(key, val []byte) error {

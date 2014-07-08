@@ -29,16 +29,6 @@ var (
 
 	chanGroups = make([]*ChanGroup, 0)
 
-	seriesNames = []string{"router", "events.router", "dyno.mem", "dyno.load", "events.dyno"}
-
-	seriesColumns = [][]string{
-		[]string{"time", "id", "status", "service"}, // Router
-		[]string{"time", "id", "code"},              // EventsRouter
-		[]string{"time", "id", "source", "memory_cache", "memory_pgpgin", "memory_pgpgout", "memory_rss", "memory_swap", "memory_total", "dynoType"}, // DynoMem
-		[]string{"time", "id", "source", "load_avg_1m", "load_avg_5m", "load_avg_15m", "dynoType"},                                                   // DynoLoad
-		[]string{"time", "id", "what", "type", "code", "message", "dynoType"},                                                                        // DynoEvents
-	}
-
 	hashRing = NewHashRing(HashRingReplication, nil)
 
 	Debug = os.Getenv("DEBUG") == "true"

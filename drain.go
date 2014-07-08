@@ -130,24 +130,24 @@ func serveDrain(w http.ResponseWriter, r *http.Request) {
 				// router logs with a H error code in them
 				case bytes.Contains(msg, keyCodeH):
 					ctx.Count("lines.router.error", 1)
-					re := routerError{}
+					re := routerError{timestamp: timestamp, sourceDrain: id}
 					err := logfmt.Unmarshal(msg, &re)
 					if err != nil {
 						log.Printf("logfmt unmarshal error: %s\n", err)
 						continue
 					}
-					chanGroup.points[EventsRouter] <- []interface{}{timestamp, id, re.Code}
+					chanGroup.RouterErrors <- &re
 
 				// likely a standard router log
 				default:
 					ctx.Count("lines.router", 1)
-					rm := routerMsg{}
+					rm := routerMsg{timestamp: timestamp, sourceDrain: id}
 					err := logfmt.Unmarshal(msg, &rm)
 					if err != nil {
 						log.Printf("logfmt unmarshal error: %s\n", err)
 						continue
 					}
-					chanGroup.points[Router] <- []interface{}{timestamp, id, rm.Status, rm.Service}
+					chanGroup.RouterMsgs <- &rm
 				}
 
 				// Non router logs, so either dynos, runtime, etc
@@ -160,62 +160,37 @@ func serveDrain(w http.ResponseWriter, r *http.Request) {
 					if err != nil {
 						log.Printf("Unable to parse dyno error message: %q\n", err)
 					}
+					de.timestamp = timestamp
+					de.sourceDrain = id
+					de.Dyno = string(lp.Header().Procid)
 
-					what := string(lp.Header().Procid)
-					chanGroup.points[EventsDyno] <- []interface{}{
-						timestamp,
-						id,
-						what,
-						"R",
-						de.Code,
-						string(msg),
-						dynoType(what),
-					}
+					chanGroup.DynoErrors <- &de
+
 
 				// Dyno log-runtime-metrics memory messages
 				case bytes.Contains(msg, dynoMemMsgSentinel):
 					ctx.Count("lines.dyno.mem", 1)
-					dm := dynoMemMsg{}
+					dm := dynoMemMsg{timestamp: timestamp, sourceDrain: id}
 					err := logfmt.Unmarshal(msg, &dm)
 					if err != nil {
 						log.Printf("logfmt unmarshal error: %s\n", err)
 						continue
-					}
-					if dm.Source != "" {
-						chanGroup.points[DynoMem] <- []interface{}{
-							timestamp,
-							id,
-							dm.Source,
-							dm.MemoryCache,
-							dm.MemoryPgpgin,
-							dm.MemoryPgpgout,
-							dm.MemoryRSS,
-							dm.MemorySwap,
-							dm.MemoryTotal,
-							dynoType(dm.Source),
-						}
 					}
 
-					// Dyno log-runtime-metrics load messages
+					chanGroup.DynoMemMsgs <- &dm
+
+
+				// Dyno log-runtime-metrics load messages
 				case bytes.Contains(msg, dynoLoadMsgSentinel):
 					ctx.Count("lines.dyno.load", 1)
-					dm := dynoLoadMsg{}
-					err := logfmt.Unmarshal(msg, &dm)
+					dl := dynoLoadMsg{timestamp: timestamp, sourceDrain: id}
+					err := logfmt.Unmarshal(msg, &dl)
 					if err != nil {
 						log.Printf("logfmt unmarshal error: %s\n", err)
 						continue
 					}
-					if dm.Source != "" {
-						chanGroup.points[DynoLoad] <- []interface{}{
-							timestamp,
-							id,
-							dm.Source,
-							dm.LoadAvg1Min,
-							dm.LoadAvg5Min,
-							dm.LoadAvg15Min,
-							dynoType(dm.Source),
-						}
-					}
+
+					chanGroup.DynoLoadMsgs <- &dl
 
 				// unknown
 				default:

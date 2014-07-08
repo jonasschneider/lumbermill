@@ -37,6 +37,9 @@ type routerMsg struct {
 	Service   int
 	Status    int
 	Bytes     int
+
+	timestamp int64
+	sourceDrain string
 }
 
 func (rm *routerMsg) HandleLogfmt(key, val []byte) error {
@@ -99,6 +102,9 @@ type routerError struct {
 	Status    int
 	Bytes     int
 	Sock      string
+
+	timestamp int64
+	sourceDrain string
 }
 
 func (re *routerError) HandleLogfmt(key, val []byte) error {
