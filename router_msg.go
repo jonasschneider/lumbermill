@@ -38,7 +38,7 @@ type routerMsg struct {
 	Status    int
 	Bytes     int
 
-	timestamp int64
+	timestamp   int64
 	sourceDrain string
 }
 
@@ -103,7 +103,7 @@ type routerError struct {
 	Bytes     int
 	Sock      string
 
-	timestamp int64
+	timestamp   int64
 	sourceDrain string
 }
 

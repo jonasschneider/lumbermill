@@ -1,18 +1,18 @@
 package main
 
 import (
-	"time"
-	"log"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/amir/raidman"
 	"github.com/heroku/slog"
 )
 
 type RiemannPoster struct {
-	chanGroup    *ChanGroup
-	name         string
-	riemann *raidman.Client
+	chanGroup      *ChanGroup
+	name           string
+	riemann        *raidman.Client
 	riemannAddress string
 }
 
@@ -24,8 +24,8 @@ func NewRiemannPoster(address string, chanGroup *ChanGroup) *RiemannPoster {
 	}
 
 	return &RiemannPoster{
-		chanGroup: chanGroup,
-		riemann: riemann,
+		chanGroup:      chanGroup,
+		riemann:        riemann,
 		riemannAddress: address,
 	}
 }
@@ -52,26 +52,26 @@ func (p *RiemannPoster) Run() {
 			// timestamp int64
 			// sourceDrain string
 
-		  event := &raidman.Event{
-			  Host: RiemannPrefix+"router",
-			  Service: rm.Host+" heroku latency",
-			  Metric:	rm.Connect+rm.Service,
-			  Ttl: 300,
-			  Time: rm.timestamp,
-			  Description: fmt.Sprintf("%s %s in %dms by %s\n\nHost: %s\nRequest: %s", rm.Method, rm.Path, rm.Service, rm.Dyno, rm.Host, rm.RequestId),
-			  Attributes: map[string]string{
-			  	"method": rm.Method,
-			  	"path": rm.Path,
-			  	"status": string(rm.Status),
+			event := &raidman.Event{
+				Host:        RiemannPrefix + "router",
+				Service:     rm.Host + " heroku latency",
+				Metric:      rm.Connect + rm.Service,
+				Ttl:         300,
+				Time:        rm.timestamp,
+				Description: fmt.Sprintf("%s %s in %dms by %s\n\nHost: %s\nRequest: %s", rm.Method, rm.Path, rm.Service, rm.Dyno, rm.Host, rm.RequestId),
+				Attributes: map[string]string{
+					"method": rm.Method,
+					"path":   rm.Path,
+					"status": string(rm.Status),
 
-			  	"request_host": rm.Host,
-			  	"request_id": rm.RequestId,
-			  	"fwd": rm.Fwd,
-			  	"dyno": rm.Dyno,
-			  	"bytes": string(rm.Bytes),
+					"request_host": rm.Host,
+					"request_id":   rm.RequestId,
+					"fwd":          rm.Fwd,
+					"dyno":         rm.Dyno,
+					"bytes":        string(rm.Bytes),
 
-			  	"logplex_source_id": rm.sourceDrain,
-			  },
+					"logplex_source_id": rm.sourceDrain,
+				},
 			}
 
 			p.deliver(event)
@@ -99,27 +99,27 @@ func (p *RiemannPoster) Run() {
 			// timestamp int64
 			// sourceDrain string
 
-		  event := &raidman.Event{
-		  	State: "error",
-			  Host: RiemannPrefix+"router",
-			  Service: "heroku_request_error",
-			  Ttl: 300,
-			  Time: re.timestamp,
-			  Description: fmt.Sprintf("Error %s (%s) at %s for %s", re.Code, re.Desc, re.At, re.Host),
-			  Attributes: map[string]string{
-			  	"at": re.At,
-			  	"method": re.Method,
-			  	"path": re.Path,
-			  	"status": string(re.Status),
+			event := &raidman.Event{
+				State:       "error",
+				Host:        RiemannPrefix + "router",
+				Service:     "heroku_request_error",
+				Ttl:         300,
+				Time:        re.timestamp,
+				Description: fmt.Sprintf("Error %s (%s) at %s for %s", re.Code, re.Desc, re.At, re.Host),
+				Attributes: map[string]string{
+					"at":     re.At,
+					"method": re.Method,
+					"path":   re.Path,
+					"status": string(re.Status),
 
-			  	"host": re.Host,
-			  	"request_id": re.RequestId,
-			  	"fwd": re.Fwd,
-			  	"dyno": re.Dyno,
-			  	"bytes": string(re.Bytes),
+					"host":       re.Host,
+					"request_id": re.RequestId,
+					"fwd":        re.Fwd,
+					"dyno":       re.Dyno,
+					"bytes":      string(re.Bytes),
 
-			  	"logplex_source_id": re.sourceDrain,
-			  },
+					"logplex_source_id": re.sourceDrain,
+				},
 			}
 
 			p.deliver(event)
@@ -142,55 +142,54 @@ func (p *RiemannPoster) Run() {
 			// sourceDrain string
 
 			event := &raidman.Event{
-		  	Host: RiemannPrefix+dm.Source,
-			  Service: "memory",
-			  Ttl: 300,
-			  Time: dm.timestamp,
-			  Metric: dm.MemoryTotal*1e6,
-			  Description: fmt.Sprintf("%s used (%s RSS, %s swap, %s cached)",
-			  	ByteSize(dm.MemoryTotal*1e6).String(),
-			  	ByteSize(dm.MemoryRSS*1e6).String(),
-			  	ByteSize(dm.MemorySwap*1e6).String(),
-			  	ByteSize(dm.MemoryCache*1e6).String(),
-			  ),
-			  Attributes: map[string]string{
-			  	"logplex_source_id": dm.sourceDrain,
-			  	"dyno": dm.Dyno,
-			  },
+				Host:    RiemannPrefix + dm.Source,
+				Service: "memory",
+				Ttl:     300,
+				Time:    dm.timestamp,
+				Metric:  dm.MemoryTotal * 1e6,
+				Description: fmt.Sprintf("%s used (%s RSS, %s swap, %s cached)",
+					ByteSize(dm.MemoryTotal*1e6).String(),
+					ByteSize(dm.MemoryRSS*1e6).String(),
+					ByteSize(dm.MemorySwap*1e6).String(),
+					ByteSize(dm.MemoryCache*1e6).String(),
+				),
+				Attributes: map[string]string{
+					"logplex_source_id": dm.sourceDrain,
+					"dyno":              dm.Dyno,
+				},
 			}
 
 			p.deliver(event)
 
 			event2 := &raidman.Event{
-		  	Host: RiemannPrefix+dm.Source,
-			  Service: "memory_swap",
-			  Ttl: 300,
-			  Time: dm.timestamp,
-			  Metric: dm.MemorySwap*1e6,
-			  Description: fmt.Sprintf("%s of swap used", ByteSize(dm.MemorySwap*1e6).String()),
-			  Attributes: map[string]string{
-			  	"logplex_source_id": dm.sourceDrain,
-			  	"dyno": dm.Dyno,
-			  },
+				Host:        RiemannPrefix + dm.Source,
+				Service:     "memory_swap",
+				Ttl:         300,
+				Time:        dm.timestamp,
+				Metric:      dm.MemorySwap * 1e6,
+				Description: fmt.Sprintf("%s of swap used", ByteSize(dm.MemorySwap*1e6).String()),
+				Attributes: map[string]string{
+					"logplex_source_id": dm.sourceDrain,
+					"dyno":              dm.Dyno,
+				},
 			}
 
 			p.deliver(event2)
 
 			event3 := &raidman.Event{
-		  	Host: RiemannPrefix+dm.Source,
-			  Service: "memory_swap_pagecount",
-			  Ttl: 300,
-			  Time: dm.timestamp,
-			  Metric: dm.MemoryPgpgin + dm.MemoryPgpgout,
-			  Description: fmt.Sprintf("%d page ins, %d page outs", dm.MemoryPgpgin, dm.MemoryPgpgout),
-			  Attributes: map[string]string{
-			  	"logplex_source_id": dm.sourceDrain,
-			  	"dyno": dm.Dyno,
-			  },
+				Host:        RiemannPrefix + dm.Source,
+				Service:     "memory_swap_pagecount",
+				Ttl:         300,
+				Time:        dm.timestamp,
+				Metric:      dm.MemoryPgpgin + dm.MemoryPgpgout,
+				Description: fmt.Sprintf("%d page ins, %d page outs", dm.MemoryPgpgin, dm.MemoryPgpgout),
+				Attributes: map[string]string{
+					"logplex_source_id": dm.sourceDrain,
+					"dyno":              dm.Dyno,
+				},
 			}
 
 			p.deliver(event3)
-
 
 		case dl, open := <-p.chanGroup.DynoLoadMsgs:
 			if !open {
@@ -207,20 +206,20 @@ func (p *RiemannPoster) Run() {
 			// sourceDrain string
 
 			event := &raidman.Event{
-		  	Host: RiemannPrefix+dl.Source,
-			  Service: "load",
-			  Ttl: 300,
-			  Time: dl.timestamp,
-			  Metric: dl.LoadAvg1Min,
-			  Description: fmt.Sprintf("load %f.2 %f.2 %f.2",
-			  	dl.LoadAvg1Min,
-			  	dl.LoadAvg5Min,
-			  	dl.LoadAvg15Min,
-			  ),
-			  Attributes: map[string]string{
-			  	"logplex_source_id": dl.sourceDrain,
-			  	"dyno": dl.Dyno,
-			  },
+				Host:    RiemannPrefix + dl.Source,
+				Service: "load",
+				Ttl:     300,
+				Time:    dl.timestamp,
+				Metric:  dl.LoadAvg1Min,
+				Description: fmt.Sprintf("load %f.2 %f.2 %f.2",
+					dl.LoadAvg1Min,
+					dl.LoadAvg5Min,
+					dl.LoadAvg15Min,
+				),
+				Attributes: map[string]string{
+					"logplex_source_id": dl.sourceDrain,
+					"dyno":              dl.Dyno,
+				},
 			}
 
 			p.deliver(event)
@@ -240,13 +239,13 @@ func (p *RiemannPoster) deliver(event *raidman.Event) {
 	err := p.riemann.Send(event)
 
 	if err != nil {
-		log.Println(ctx, "delivery error, trying to reconnect:",err)
+		log.Println(ctx, "delivery error, trying to reconnect:", err)
 		new_riemann, err := raidman.Dial("tcp", p.riemannAddress)
 		if err == nil {
 			log.Println("reconnected!")
 			p.riemann = new_riemann
 		} else {
-			log.Println("reconnection failed:",err)
+			log.Println("reconnection failed:", err)
 		}
 	}
 

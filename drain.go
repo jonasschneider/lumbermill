@@ -166,7 +166,6 @@ func serveDrain(w http.ResponseWriter, r *http.Request) {
 
 					chanGroup.DynoErrors <- &de
 
-
 				// Dyno log-runtime-metrics memory messages
 				case bytes.Contains(msg, dynoMemMsgSentinel):
 					ctx.Count("lines.dyno.mem", 1)
@@ -178,7 +177,6 @@ func serveDrain(w http.ResponseWriter, r *http.Request) {
 					}
 
 					chanGroup.DynoMemMsgs <- &dm
-
 
 				// Dyno log-runtime-metrics load messages
 				case bytes.Contains(msg, dynoLoadMsgSentinel):

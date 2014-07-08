@@ -24,11 +24,11 @@ var (
 )
 
 type dynoError struct {
-	Code int
+	Code    int
 	Message string
-	Dyno string
+	Dyno    string
 
-	timestamp int64
+	timestamp   int64
 	sourceDrain string
 }
 
@@ -53,7 +53,7 @@ type dynoMemMsg struct {
 	MemoryPgpgin  int
 	MemoryPgpgout int
 
-	timestamp int64
+	timestamp   int64
 	sourceDrain string
 }
 
@@ -86,7 +86,7 @@ type dynoLoadMsg struct {
 	LoadAvg5Min  float64
 	LoadAvg15Min float64
 
-	timestamp int64
+	timestamp   int64
 	sourceDrain string
 }
 

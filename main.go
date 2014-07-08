@@ -33,8 +33,8 @@ var (
 
 	Debug = os.Getenv("DEBUG") == "true"
 
-	User     = os.Getenv("USER")
-	Password = os.Getenv("PASSWORD")
+	User          = os.Getenv("USER")
+	Password      = os.Getenv("PASSWORD")
 	RiemannPrefix = os.Getenv("RIEMANN_PREFIX")
 )
 
@@ -42,7 +42,6 @@ func LogWithContext(ctx slog.Context) {
 	ctx.Add("app", "lumbermill")
 	log.Println(ctx)
 }
-
 
 // Health Checks, so just say 200 - OK
 // TODO: Actual healthcheck

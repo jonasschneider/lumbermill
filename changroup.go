@@ -7,11 +7,11 @@ import (
 type ChanGroup struct {
 	Name string
 
-	DynoErrors chan *dynoError
-	DynoMemMsgs chan *dynoMemMsg
+	DynoErrors   chan *dynoError
+	DynoMemMsgs  chan *dynoMemMsg
 	DynoLoadMsgs chan *dynoLoadMsg
 
-	RouterMsgs chan *routerMsg
+	RouterMsgs   chan *routerMsg
 	RouterErrors chan *routerError
 }
 
