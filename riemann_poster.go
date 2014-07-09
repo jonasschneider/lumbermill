@@ -211,7 +211,7 @@ func (p *RiemannPoster) Run() {
 				Time:    dl.timestamp / 1e6,
 				Metric:  dl.LoadAvg1Min,
 				State:   state,
-				Description: fmt.Sprintf("load %f.2 %f.2 %f.2",
+				Description: fmt.Sprintf("load %.2f %.2f %.2f",
 					dl.LoadAvg1Min,
 					dl.LoadAvg5Min,
 					dl.LoadAvg15Min,
