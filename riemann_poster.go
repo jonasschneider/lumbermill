@@ -57,7 +57,7 @@ func (p *RiemannPoster) Run() {
 				Service:     rm.Host + " heroku latency",
 				Metric:      rm.Connect + rm.Service,
 				Ttl:         300,
-				Time:        rm.timestamp/1e6,
+				Time:        rm.timestamp / 1e6,
 				Description: fmt.Sprintf("%s %s in %dms by %s\n\nHost: %s\nRequest: %s", rm.Method, rm.Path, rm.Service, rm.Dyno, rm.Host, rm.RequestId),
 				Attributes: map[string]string{
 					"method": rm.Method,
@@ -104,7 +104,7 @@ func (p *RiemannPoster) Run() {
 				Host:        RiemannPrefix + "router",
 				Service:     "heroku_request_error",
 				Ttl:         300,
-				Time:        re.timestamp/1e6/1e6,
+				Time:        re.timestamp / 1e6,
 				Description: fmt.Sprintf("Error %s (%s) at %s for %s", re.Code, re.Desc, re.At, re.Host),
 				Attributes: map[string]string{
 					"at":     re.At,
@@ -141,12 +141,21 @@ func (p *RiemannPoster) Run() {
 			// timestamp int64
 			// sourceDrain string
 
+			// TODO: this breaks for 2X dynos
+			memload := dm.MemoryTotal / 512.0
+
+			state := "ok"
+			if memload > 0.8 {
+				state = "critical"
+			}
+
 			event := &raidman.Event{
 				Host:    RiemannPrefix + dm.Source,
 				Service: "memory",
 				Ttl:     300,
-				Time:    dm.timestamp/1e6,
-				Metric:  dm.MemoryTotal * 1e6,
+				Time:    dm.timestamp / 1e6,
+				Metric:  memload,
+				State:   state,
 				Description: fmt.Sprintf("%s used (%s RSS, %s swap, %s cached)",
 					ByteSize(dm.MemoryTotal*1e6).String(),
 					ByteSize(dm.MemoryRSS*1e6).String(),
@@ -163,24 +172,9 @@ func (p *RiemannPoster) Run() {
 
 			event2 := &raidman.Event{
 				Host:        RiemannPrefix + dm.Source,
-				Service:     "memory_swap",
-				Ttl:         300,
-				Time:        dm.timestamp/1e6,
-				Metric:      dm.MemorySwap * 1e6,
-				Description: fmt.Sprintf("%s of swap used", ByteSize(dm.MemorySwap*1e6).String()),
-				Attributes: map[string]string{
-					"logplex_source_id": dm.sourceDrain,
-					"dyno":              dm.Dyno,
-				},
-			}
-
-			p.deliver(event2)
-
-			event3 := &raidman.Event{
-				Host:        RiemannPrefix + dm.Source,
 				Service:     "memory_swap_pagecount",
 				Ttl:         300,
-				Time:        dm.timestamp/1e6,
+				Time:        dm.timestamp / 1e6,
 				Metric:      dm.MemoryPgpgin + dm.MemoryPgpgout,
 				Description: fmt.Sprintf("%d page ins, %d page outs", dm.MemoryPgpgin, dm.MemoryPgpgout),
 				Attributes: map[string]string{
@@ -189,7 +183,7 @@ func (p *RiemannPoster) Run() {
 				},
 			}
 
-			p.deliver(event3)
+			p.deliver(event2)
 
 		case dl, open := <-p.chanGroup.DynoLoadMsgs:
 			if !open {
@@ -205,12 +199,18 @@ func (p *RiemannPoster) Run() {
 			// timestamp int64
 			// sourceDrain string
 
+			state := "ok"
+			if dl.LoadAvg1Min > 0.8 {
+				state = "critical"
+			}
+
 			event := &raidman.Event{
 				Host:    RiemannPrefix + dl.Source,
 				Service: "load",
 				Ttl:     300,
-				Time:    dl.timestamp/1e6,
+				Time:    dl.timestamp / 1e6,
 				Metric:  dl.LoadAvg1Min,
+				State:   state,
 				Description: fmt.Sprintf("load %f.2 %f.2 %f.2",
 					dl.LoadAvg1Min,
 					dl.LoadAvg5Min,
