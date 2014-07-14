@@ -62,7 +62,7 @@ func (p *RiemannPoster) Run() {
 				Attributes: map[string]string{
 					"method": rm.Method,
 					"path":   rm.Path,
-					"status": string(rm.Status),
+					"status": strconv.Itoa(rm.Status),
 
 					"request_host": rm.Host,
 					"request_id":   rm.RequestId,
