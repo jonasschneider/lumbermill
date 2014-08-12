@@ -119,7 +119,7 @@ func (p *RiemannPoster) Run() {
 					"dyno":       re.Dyno,
 					"bytes":      strconv.Itoa(re.Status),
 
-					"sock":      string(re.Bytes),
+					"sock":      string(re.Sock),
 
 					"logplex_source_id": re.sourceDrain,
 				},
