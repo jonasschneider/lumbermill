@@ -111,13 +111,15 @@ func (p *RiemannPoster) Run() {
 					"at":     re.At,
 					"method": re.Method,
 					"path":   re.Path,
-					"status": string(re.Status),
+					"status": strconv.Itoa(re.Status),
 
 					"host":       re.Host,
 					"request_id": re.RequestId,
 					"fwd":        re.Fwd,
 					"dyno":       re.Dyno,
-					"bytes":      string(re.Bytes),
+					"bytes":      strconv.Itoa(re.Status),
+
+					"sock":      string(re.Bytes),
 
 					"logplex_source_id": re.sourceDrain,
 				},
