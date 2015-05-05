@@ -54,6 +54,7 @@ func (p *RiemannPoster) Run() {
 			// sourceDrain string
 
 			event := &raidman.Event{
+				State:			 "ok",
 				Host:        RiemannPrefix + "router",
 				Service:     rm.Host + " heroku latency",
 				Metric:      rm.Connect + rm.Service,
